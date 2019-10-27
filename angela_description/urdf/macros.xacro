@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot>
+  <macro name="cylinder_inertia" params="m r h">
+    <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
+              iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
+              izz="${m*r*r/2}" /> 
+  </macro>
+
+  <macro name="box_inertia" params="m x y z">
+    <inertia  ixx="${m*(y*y+z*z)/12}" ixy = "0" ixz = "0"
+              iyy="${m*(x*x+z*z)/12}" iyz = "0"
+              izz="${m*(x*x+z*z)/12}" /> 
+  </macro>
+
+  <macro name="sphere_inertia" params="m r">
+    <inertia  ixx="${2*m*r*r/5}" ixy = "0" ixz = "0"
+              iyy="${2*m*r*r/5}" iyz = "0"
+              izz="${2*m*r*r/5}" /> 
+  </macro>
+
+  <macro name="default_origin">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </macro>
+
+  <macro name="surfaceGenerator" params="mu mu2 kp kd min_depth max_vel">
+    <surface>
+      <friction>
+        <ode>
+          <mu>${mu}</mu>
+          <mu2>${mu2}</mu2>
+        </ode>
+      </friction>
+      <contact>
+        <ode>
+          <kp>${kp}</kp>
+          <kd>${kd}</kd>
+          <min_depth>${min_depth}</min_depth>
+          <max_vel>${max_vel}</max_vel>
+        </ode>
+      </contact>
+    </surface>
+  </macro>
+
+  <macro name="cylinderLink" params="c_name c_mass c_materialName c_radius c_length c_mu c_mu2 c_kp c_kd c_min_depth c_max_vel c_originrpy c_originxyz">
+    <link name="${c_name}">
+      <visual>
+        <origin rpy="${c_originrpy}" xyz="${c_originxyz}"/>
+        <geometry>
+          <cylinder radius="${c_radius}" length="${c_length}"/>
+        </geometry>
+        <material name="${c_materialName}" />
+      </visual>
+      <collision>
+        <origin rpy="${c_originrpy}" xyz="${c_originxyz}"/>
+        <geometry>
+          <cylinder radius="${c_radius}" length="${c_length}"/>
+        </geometry>
+        <surfaceGenerator mu="${c_mu}" mu2="${c_mu2}" kp="${c_kp}" kd="${c_kd}" min_depth="${c_min_depth}" max_vel="${c_max_vel}" />
+      </collision>    
+      <inertial>
+        <origin rpy="${c_originrpy}" xyz="${c_originxyz}"/>
+        <mass value="${c_mass}"/>
+        <cylinder_inertia m="${c_mass}" r="${c_radius}" h="${c_length}"/>
+      </inertial>
+    </link>
+  </macro>
+
+
+  <macro name="u_channel" params="u_name u_length u_parent u_originxyz u_originrpy">
+    <link name="${u_name}_link">
+      <visual>
+        <default_origin />
+        <geometry>
+          <box size="${u_length} 0.038 0.038"/> 
+        </geometry>
+        <material name="blue" />  
+      </visual>
+      <collision>
+        <default_origin />
+        <geometry>
+          <box size="${u_length} 0.038 0.038"/>
+        </geometry>  
+      </collision>
+      <inertial>
+        <default_origin />
+        <mass value="${u_length / 10}"/>
+        <box_inertia m="${u_length / 10}" x="${u_length}" y="0.38" z="0.38"/>
+      </inertial>    
+    </link>
+    <joint name="${u_name}_link_joint" type="fixed">
+      <origin xyz="${u_originxyz}" rpy="${u_originrpy}" />
+      <parent link="${u_parent}" />
+      <child link="${u_name}_link" />
+      <axis xyz="0 0 0" />
+    </joint>  
+  </macro>
+
+</robot>

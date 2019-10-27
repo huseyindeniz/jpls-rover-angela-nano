@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot name="angela_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:property name="SM" value="0.001" /> <!--size multiplier-->
+
+<xacro:property name="CHASSIS_WIDTH" value="${225*SM}" />
+<xacro:property name="CHASSIS_HEIGHT" value="${115*SM}" />
+<xacro:property name="CHASSIS_LENGTH" value="${310*SM}" />
+
+<xacro:property name="WHEEL_RADIUS" value="${70*SM}" />
+<xacro:property name="WHEEL_THICKNESS" value="${80*SM}" />
+
+<xacro:property name="RB_RADIUS" value="${10*SM}" />
+<xacro:property name="RB_LENGTH" value="${80*SM}" />
+
+<xacro:property name="CORNER_RADIUS" value="${10*SM}" />
+<xacro:property name="CORNER_LENGTH" value="${90*SM}" />
+
+<xacro:property name="FRONT_RADIUS" value="${10*SM}" />
+<xacro:property name="FRONT_LENGTH" value="${50*SM}" />
+
+<xacro:property name="chassisMass" value="5.0" />
+<xacro:property name="rbMass" value="0.05" />
+<xacro:property name="wheelMass" value="0.4" />
+
+<xacro:property name="rbMu" value="0.8" />
+<xacro:property name="rbMu2" value="0.8" />
+<xacro:property name="rbKp" value="1000000.0" />
+<xacro:property name="rbKd" value="1.0" />
+<xacro:property name="rbMinDepth" value="0.001" />
+<xacro:property name="rbMaxVel" value="0.0" />
+
+<xacro:property name="cornerMu" value="0.8" />
+<xacro:property name="cornerMu2" value="0.8" />
+<xacro:property name="cornerKp" value="1000000.0" />
+<xacro:property name="cornerKd" value="1.0" />
+<xacro:property name="cornerMinDepth" value="0.001" />
+<xacro:property name="cornerMaxVel" value="0.0" />
+
+<xacro:property name="wheelMu" value="0.8" />
+<xacro:property name="wheelMu2" value="0.8" />
+<xacro:property name="wheelKp" value="1000000.0" />
+<xacro:property name="wheelKd" value="1.0" />
+<xacro:property name="wheelMinDepth" value="0.001" />
+<xacro:property name="wheelMaxVel" value="0.0" />
+
+<xacro:include filename="$(find angela_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find angela_description)/urdf/macros.xacro" />
+<xacro:include filename="$(find angela_description)/urdf/angela_v1.gazebo" />
+
+    <!-- CHASSIS START -->
+    <link name="base_link">
+    <visual>
+        <default_origin />
+        <geometry>
+        <box size="${CHASSIS_LENGTH} ${CHASSIS_WIDTH} ${CHASSIS_HEIGHT}"/> 
+        </geometry>
+        <material name="black" />  
+    </visual>
+    <collision>
+        <default_origin />
+        <geometry>
+        <box size="${CHASSIS_LENGTH} ${CHASSIS_WIDTH} ${CHASSIS_HEIGHT}"/>
+        </geometry>  
+    </collision>
+    <inertial>
+        <default_origin />
+        <mass value="${chassisMass}"/>
+        <box_inertia m="${chassisMass}" x="${CHASSIS_LENGTH}" y="${CHASSIS_WIDTH}" z="${CHASSIS_HEIGHT}"/>
+    </inertial>
+    </link>
+    <!-- CHASSIS END -->
+
+    <!-- LEFT RB START -->
+    <cylinderLink 
+        c_name="left_rb_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${RB_RADIUS}" 
+        c_length="${RB_LENGTH}" 
+        c_mu="${rbMu}" 
+        c_mu2="${rbMu2}" 
+        c_kp="${rbKp}" 
+        c_kd="${rbKd}" 
+        c_min_depth="${rbMinDepth}" 
+        c_max_vel="${rbMaxVel}"
+        c_originrpy="${pi/2} 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_rb_joint" type="revolute">
+        <origin xyz="-0.025 0.12 0" />
+        <parent link="base_link" />
+        <child link="left_rb_link" />
+        <axis xyz="0 1 0" />
+        <limit effort="30" velocity="1.0" lower="-1" upper="1" />
+    </joint>    
+    <!-- LEFT RB END -->
+
+    <!-- RIGHT RB START -->
+    <cylinderLink 
+        c_name="right_rb_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${RB_RADIUS}" 
+        c_length="${RB_LENGTH}" 
+        c_mu="${rbMu}" 
+        c_mu2="${rbMu2}" 
+        c_kp="${rbKp}" 
+        c_kd="${rbKd}" 
+        c_min_depth="${rbMinDepth}" 
+        c_max_vel="${rbMaxVel}"
+        c_originrpy="${pi/2} 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_rb_joint" type="revolute">
+        <origin xyz="-0.025 -0.12 0" />
+        <parent link="base_link" />
+        <child link="right_rb_link" />
+        <axis xyz="0 1 0" />
+        <limit effort="30" velocity="1.0" lower="-1" upper="1" />
+    </joint>    
+    <!-- RIGHT RB END -->
+
+    <!-- LEFT CHASSIS 1 START -->
+    <u_channel u_name="left_chassis_1" u_length="0.3" u_parent="left_rb_link" u_originxyz="-0.05 0.02 0" u_originrpy="0 0 0" />
+    <u_channel u_name="right_chassis_1" u_length="0.3" u_parent="right_rb_link" u_originxyz="-0.05 -0.02 0" u_originrpy="0 0 0" />
+
+    <u_channel u_name="left_chassis_2" u_length="0.19" u_parent="left_chassis_1_link" u_originxyz="0.19 0 -0.06" u_originrpy="0 ${pi / 4} 0" />
+    <u_channel u_name="right_chassis_2" u_length="0.19" u_parent="right_chassis_1_link" u_originxyz="0.19 0 -0.06" u_originrpy="0 ${pi / 4} 0" />
+    <!-- LEFT CHASSIS 1 END -->
+
+
+    <!-- LEFT CORNER BACK START -->
+    <cylinderLink 
+        c_name="left_corner_back_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_corner_back_joint" type="revolute">
+        <origin xyz="-0.13 0 -0.04" rpy="0 0 ${pi/2}" />
+        <parent link="left_chassis_1_link" />
+        <child link="left_corner_back_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>
+
+    <u_channel u_name="left_chassis_3" u_length="0.11" u_parent="left_corner_back_link" u_originxyz="-0.04 0 -0.04" u_originrpy="0 0 0" />
+
+    <u_channel u_name="left_chassis_4" u_length="0.075" u_parent="left_chassis_3_link" u_originxyz="-0.037 0 -0.055" u_originrpy="0 ${pi / 2} 0" />
+
+    <u_channel u_name="left_chassis_5" u_length="0.075" u_parent="left_chassis_4_link" u_originxyz="0.055 0 0.019" u_originrpy="0 ${pi / 2} 0" />
+
+    <!-- LEFT CORNER BACK END -->
+
+    <!-- RIGHT CORNER BACK START -->
+    <cylinderLink 
+        c_name="right_corner_back_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_corner_back_joint" type="revolute">
+        <origin xyz="-0.13 0 -0.04" rpy="0 0 ${-pi/2}" />
+        <parent link="right_chassis_1_link" />
+        <child link="right_corner_back_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>
+
+    <u_channel u_name="right_chassis_3" u_length="0.11" u_parent="right_corner_back_link" u_originxyz="-0.04 0 -0.04" u_originrpy="0 0 0" />
+
+    <u_channel u_name="right_chassis_4" u_length="0.075" u_parent="right_chassis_3_link" u_originxyz="-0.037 0 -0.055" u_originrpy="0 ${pi / 2} 0" />
+
+    <u_channel u_name="right_chassis_5" u_length="0.075" u_parent="right_chassis_4_link" u_originxyz="0.055 0 0.019" u_originrpy="0 ${pi / 2} 0" />
+
+    <!-- LEFT CORNER BACK END -->
+
+    <!-- LEFT BACK WHEEL START -->
+    <cylinderLink 
+        c_name="left_back_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_back_wheel_joint" type="continuous">
+        <origin xyz="-0.06 0 0" rpy="0 0 0" />
+        <parent link="left_chassis_5_link" />
+        <child link="left_back_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- LEFT BACK WHEEL END -->
+
+    <!-- RIGHT BACK WHEEL START -->
+    <cylinderLink 
+        c_name="right_back_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_back_wheel_joint" type="continuous">
+        <origin xyz="-0.06 0 0" rpy="0 0 0" />
+        <parent link="right_chassis_5_link" />
+        <child link="right_back_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- RIGHT BACK WHEEL END -->
+
+    <!-- LEFT MIDDLE START -->
+    <cylinderLink 
+        c_name="left_chassis_6_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${FRONT_RADIUS}" 
+        c_length="${FRONT_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_chassis_6_joint" type="revolute">
+        <origin xyz="0.07 0 0" rpy="${pi/2} 0 0" />
+        <parent link="left_chassis_2_link" />
+        <child link="left_chassis_6_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>   
+
+    <u_channel u_name="left_chassis_7" u_length="0.19" u_parent="left_chassis_6_link" u_originxyz="0 0.04 0" u_originrpy="0 0 ${pi/2}" />
+    <u_channel u_name="left_chassis_8" u_length="0.17" u_parent="left_chassis_7_link" u_originxyz="0.13 -0.04 0" u_originrpy="0 0 ${-pi/4}" />
+    <u_channel u_name="left_chassis_9" u_length="0.075" u_parent="left_chassis_7_link" u_originxyz="-0.1 0.02 0" u_originrpy="0 0 ${-pi/4}" />
+    <u_channel u_name="left_chassis_10" u_length="0.02" u_parent="left_chassis_9_link" u_originxyz="-0.019 -0.025 0" u_originrpy="0 0 ${pi/2}" />
+    <u_channel u_name="left_chassis_11" u_length="0.075" u_parent="left_chassis_10_link" u_originxyz="-0.028 0 -0.02" u_originrpy="0 ${pi / 2} 0" />
+    <!-- LEFT MIDDLE END-->
+
+    <!-- RIGHT MIDDLE START -->
+    <cylinderLink 
+        c_name="right_chassis_6_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${FRONT_RADIUS}" 
+        c_length="${FRONT_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_chassis_6_joint" type="revolute">
+        <origin xyz="0.07 0 0" rpy="${pi/2} 0 0" />
+        <parent link="right_chassis_2_link" />
+        <child link="right_chassis_6_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>   
+
+    <u_channel u_name="right_chassis_7" u_length="0.19" u_parent="right_chassis_6_link" u_originxyz="0 0.04 0" u_originrpy="0 0 ${pi/2}" />
+    <u_channel u_name="right_chassis_8" u_length="0.17" u_parent="right_chassis_7_link" u_originxyz="0.13 -0.04 0" u_originrpy="0 0 ${-pi/4}" />
+    <u_channel u_name="right_chassis_9" u_length="0.075" u_parent="right_chassis_7_link" u_originxyz="-0.1 0.02 0" u_originrpy="0 0 ${-pi/4}" />
+    <u_channel u_name="right_chassis_10" u_length="0.02" u_parent="right_chassis_9_link" u_originxyz="-0.019 -0.025 0" u_originrpy="0 0 ${pi/2}" />
+    <u_channel u_name="right_chassis_11" u_length="0.075" u_parent="right_chassis_10_link" u_originxyz="-0.028 0 0.02" u_originrpy="0 ${pi / 2} 0" />
+    <!-- RIGHT MIDDLE END-->
+
+    <!-- LEFT MIDDLE WHEEL START -->
+    <cylinderLink 
+        c_name="left_middle_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_middle_wheel_joint" type="continuous">
+        <origin xyz="0.06 0 0" rpy="0 0 0" />
+        <parent link="left_chassis_11_link" />
+        <child link="left_middle_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- LEFT MIDDLE WHEEL END -->
+
+    <!-- RIGHT MIDDLE WHEEL START -->
+    <cylinderLink 
+        c_name="right_middle_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_middle_wheel_joint" type="continuous">
+        <origin xyz="-0.06 0 0" rpy="0 0 0" />
+        <parent link="right_chassis_11_link" />
+        <child link="right_middle_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- RIGHT MIDDLE WHEEL END -->
+
+
+    <!-- LEFT CORNER FRONT START -->
+    <cylinderLink 
+        c_name="left_corner_front_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_corner_front_joint" type="revolute">
+        <origin xyz="0.06 -0.02 0" rpy="${-pi/2} ${pi/2} 0" />
+        <parent link="left_chassis_8_link" />
+        <child link="left_corner_front_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>
+
+    <u_channel u_name="left_chassis_12" u_length="0.11" u_parent="left_corner_front_link" u_originxyz="-0.04 0 -0.04" u_originrpy="0 0 0" />
+
+    <u_channel u_name="left_chassis_13" u_length="0.075" u_parent="left_chassis_12_link" u_originxyz="-0.037 0 -0.055" u_originrpy="0 ${pi / 2} 0" />
+
+    <u_channel u_name="left_chassis_14" u_length="0.075" u_parent="left_chassis_13_link" u_originxyz="0.055 0 0.019" u_originrpy="0 ${pi / 2} 0" />
+
+    <!-- LEFT CORNER FRONT END -->
+
+    <!-- RIGHT CORNER FRONT START -->
+    <cylinderLink 
+        c_name="right_corner_front_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_corner_front_joint" type="revolute">
+        <origin xyz="0.06 -0.02 0" rpy="${-pi/2} ${-pi/2} 0" />
+        <parent link="right_chassis_8_link" />
+        <child link="right_corner_front_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>
+
+    <u_channel u_name="right_chassis_12" u_length="0.11" u_parent="right_corner_front_link" u_originxyz="-0.04 0 -0.04" u_originrpy="0 0 0" />
+
+    <u_channel u_name="right_chassis_13" u_length="0.075" u_parent="right_chassis_12_link" u_originxyz="-0.037 0 -0.055" u_originrpy="0 ${pi / 2} 0" />
+
+    <u_channel u_name="right_chassis_14" u_length="0.075" u_parent="right_chassis_13_link" u_originxyz="0.055 0 0.019" u_originrpy="0 ${pi / 2} 0" />
+
+    <!-- RIGHT CORNER FRONT END -->
+
+    <!-- LEFT FRONT WHEEL START -->
+    <cylinderLink 
+        c_name="left_front_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="left_front_wheel_joint" type="continuous">
+        <origin xyz="-0.06 0 0" rpy="0 0 0" />
+        <parent link="left_chassis_14_link" />
+        <child link="left_front_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- LEFT FRONT WHEEL END -->
+
+    <!-- RIGHT FRONT WHEEL START -->
+    <cylinderLink 
+        c_name="right_front_wheel_link" 
+        c_mass="${wheelMass}" 
+        c_materialName="black"
+        c_radius="${WHEEL_RADIUS}" 
+        c_length="${WHEEL_THICKNESS}" 
+        c_mu="${wheelMu}" 
+        c_mu2="${wheelMu2}" 
+        c_kp="${wheelKp}" 
+        c_kd="${wheelKd}" 
+        c_min_depth="${wheelMinDepth}" 
+        c_max_vel="${wheelMaxVel}"
+        c_originrpy="${pi /2} 0 ${pi /2}"
+        c_originxyz="0 0 0" />
+
+    <joint name="right_front_wheel_joint" type="continuous">
+        <origin xyz="-0.06 0 0" rpy="0 0 0" />
+        <parent link="right_chassis_14_link" />
+        <child link="right_front_wheel_link" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <!-- RIGHT FRONT WHEEL END -->
+
+    <!-- CHASSIS HOLDER START -->
+    <cylinderLink 
+        c_name="chassis_holder_1_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_holder_1_joint" type="revolute">
+        <origin xyz="-0.1 0 0.05" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="chassis_holder_1_link" />
+        <axis xyz="0 0 1" />
+        <limit effort="30" velocity="1.0" lower="${-pi/3}" upper="${pi/3}" />
+    </joint>
+
+    <u_channel u_name="chassis_holder_2" u_length="0.025" u_parent="chassis_holder_1_link" u_originxyz="0 0 0.03" u_originrpy="0 ${pi/2} 0" />
+ 
+    <cylinderLink 
+        c_name="chassis_holder_3_link" 
+        c_mass="0.1" 
+        c_materialName="grey"
+        c_radius="0.01" 
+        c_length="0.3" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_holder_3_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <parent link="chassis_holder_2_link" />
+        <child link="chassis_holder_3_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <cylinderLink 
+        c_name="chassis_left_holder_4_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_left_holder_4_joint" type="fixed">
+        <origin xyz="0.02 0 0.02" rpy="0 0 ${pi/2}" />
+        <parent link="left_chassis_1_link" />
+        <child link="chassis_left_holder_4_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <cylinderLink 
+        c_name="chassis_right_holder_4_link" 
+        c_mass="${rbMass}" 
+        c_materialName="grey"
+        c_radius="${CORNER_RADIUS}" 
+        c_length="${CORNER_LENGTH}" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_right_holder_4_joint" type="fixed">
+        <origin xyz="0.02 0 0.02" rpy="0 0 ${pi/2}" />
+        <parent link="right_chassis_1_link" />
+        <child link="chassis_right_holder_4_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <cylinderLink 
+        c_name="chassis_left_holder_5_link" 
+        c_mass="0.03" 
+        c_materialName="grey"
+        c_radius="0.01" 
+        c_length="0.05" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_left_holder_5_joint" type="fixed">
+        <origin xyz="0 0.02 0.05" rpy="${-pi/3} 0 0" />
+        <parent link="chassis_left_holder_4_link" />
+        <child link="chassis_left_holder_5_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <cylinderLink 
+        c_name="chassis_right_holder_5_link" 
+        c_mass="0.03" 
+        c_materialName="grey"
+        c_radius="0.01" 
+        c_length="0.05" 
+        c_mu="${cornerMu}" 
+        c_mu2="${cornerMu2}" 
+        c_kp="${cornerKp}" 
+        c_kd="${cornerKd}" 
+        c_min_depth="${cornerMinDepth}" 
+        c_max_vel="${cornerMaxVel}"
+        c_originrpy="0 0 0"
+        c_originxyz="0 0 0" />
+
+    <joint name="chassis_right_holder_5_joint" type="fixed">
+        <origin xyz="0 0.02 0.05" rpy="${-pi/3} 0 0" />
+        <parent link="chassis_right_holder_4_link" />
+        <child link="chassis_right_holder_5_link" />
+        <axis xyz="0 0 0" />
+    </joint>
+
+    <!-- CHASSIS HOLDER END-->
+
+</robot>
